@@ -4,23 +4,80 @@ const APP_NAME = "ACCORDIAN";
 
     const fetchUrl = "http://dummy.restapiexample.com/api/v1/employees";
     let allEmployees = [];
+    let searchInputVal = "";
 
     let containerId = document.getElementById('container');
+    let searchInput = document.getElementById("searchInput");
+    let searchButton = document.getElementById("searchButton")
     let openedAccordian;
 
     containerId.addEventListener('click', showAccordian);
+    searchInput.addEventListener('change', changeSearchInput);
+    searchButton.addEventListener("click", searchEmployeeName);
+
+    function searchEmployeeName() {
+      let matchFound = false;
+      allEmployees.forEach((employee, index) => {
+        if (employee.employee_name.toLowerCase() === searchInputVal.toLowerCase()) {
+          if(openedAccordian){
+            closeClickedAccordian(openedAccordian)
+          }
+          openedAccordian = document.getElementById(index);
+          if (!openedAccordian.classList.contains("active")) {
+            openClickedAccordian(openedAccordian);
+            openedAccordian.scrollIntoView();
+          }
+          matchFound = true;
+        }
+      });
+      if(!matchFound && searchInputVal) {
+        document.getElementById("errorText").textContent = "Searched Name doesnot exists in list";
+
+        setTimeout(() => {
+          document.getElementById("errorText").textContent = "";
+        }, 3000);
+      }
+    }
+
+    function changeSearchInput(event) {
+      const value = event.target.value;
+      searchInputVal = value;
+    }
 
     function showAccordian(event) {
       let targetAccordian = event.target;
       let targetAccordianId = event.target.classList.contains('accor');
+      searchInput.value = "";
       while (!targetAccordianId) {
         targetAccordian = event.target.parentNode;
         targetAccordianId = targetAccordian.classList.contains('accor');
-        if(!targetAccordianId){
+        if (!targetAccordianId) {
           break;
         }
       }
-      if(targetAccordianId){
+      if (targetAccordianId) {
+
+        if (openedAccordian) {
+          closeClickedAccordian(openedAccordian);
+        }
+
+        if (openedAccordian !== targetAccordian) {
+          openedAccordian = targetAccordian;
+          openClickedAccordian(openedAccordian)
+        } else {
+          openedAccordian = null;
+        }
+      }
+    }
+
+    function openClickedAccordian() {
+      openedAccordian.children[1].classList.remove('unactive');
+      openedAccordian.children[1].classList.add('active');
+      openedAccordian.children[0].children[1].classList.remove('down_arrow');
+      openedAccordian.children[0].children[1].classList.add('up_arrow');
+    }
+
+    function closeClickedAccordian() {
       if (openedAccordian) {
         let openedContent = openedAccordian.children[1];
         let openedHeading = openedAccordian.children[0];
@@ -29,23 +86,12 @@ const APP_NAME = "ACCORDIAN";
         openedHeading.children[1].classList.remove('up_arrow');
         openedHeading.children[1].classList.add('down_arrow');
       }
-
-      if (openedAccordian !== targetAccordian) {
-        openedAccordian = targetAccordian;
-        openedAccordian.children[1].classList.remove('unactive');
-        openedAccordian.children[1].classList.add('active');
-        openedAccordian.children[0].children[1].classList.remove('down_arrow');
-        openedAccordian.children[0].children[1].classList.add('up_arrow');
-      } else {
-        openedAccordian = null;
-      }
-    }
     }
 
     function createAccordianContent(employee) {
       let accordianContentCont = document.createElement("div");
       accordianContentCont.setAttribute("class", "accor_content unactive");
-      
+
       let salaryDiv = document.createElement("div");
       salaryDiv.textContent = `Employee Salary:  Rs. ${employee.employee_salary}`;
 
@@ -58,23 +104,23 @@ const APP_NAME = "ACCORDIAN";
       return accordianContentCont;
     }
 
-    function createAccordianHeader (employee) {
-        let accordianHeader = document.createElement("div");
-        accordianHeader.setAttribute("class", "accor_heading");
+    function createAccordianHeader(employee) {
+      let accordianHeader = document.createElement("div");
+      accordianHeader.setAttribute("class", "accor_heading");
 
-        let accordingHeading = document.createElement("span");
-        accordingHeading.textContent = employee.employee_name;
+      let accordingHeading = document.createElement("span");
+      accordingHeading.textContent = employee.employee_name;
 
-        let arrow = document.createElement("i");
-        arrow.setAttribute("class", "down_arrow");
-        arrow.setAttribute("aria-hidden", true);
+      let arrow = document.createElement("i");
+      arrow.setAttribute("class", "down_arrow");
+      arrow.setAttribute("aria-hidden", true);
 
-        accordianHeader.appendChild(accordingHeading);
-        accordianHeader.appendChild(arrow);
-        return accordianHeader;
+      accordianHeader.appendChild(accordingHeading);
+      accordianHeader.appendChild(arrow);
+      return accordianHeader;
     }
 
-    function displayEmployees () {
+    function displayEmployees() {
       allEmployees.forEach((employee, index) => {
         let accordianContainer = document.createElement("div");
         accordianContainer.setAttribute("id", index);
@@ -89,7 +135,7 @@ const APP_NAME = "ACCORDIAN";
       });
     }
 
-    function setAllEmployeeData (employeeData) {
+    function setAllEmployeeData(employeeData) {
       const { data } = employeeData
       data.forEach(employee => {
         allEmployees.push(employee);
@@ -100,8 +146,8 @@ const APP_NAME = "ACCORDIAN";
 
     function getEmployeeData(callback) {
       let xttp = new XMLHttpRequest;
-      xttp.onreadystatechange = function(){
-        if(this.status === 200 && this.readyState === 4){
+      xttp.onreadystatechange = function () {
+        if (this.status === 200 && this.readyState === 4) {
           callback(JSON.parse(this.responseText));
         }
       }
