@@ -58,3 +58,36 @@ body ul {
 .container .accor_content div {
     padding: 10px 0;
 }
+
+.search-container {
+    width: 70%;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e2e2e2;
+}
+.search-container input {
+    width: 85%;
+    padding: 15px;
+    font-size: 14px;
+    border-radius: 4px;
+    outline: none;
+    border: 1px solid grey;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.search-container button {
+    width: 10%;
+    border-radius: 5px;
+    background: green;
+    color: white;
+    font-size: 16px;
+    outline: none;
+}
+
+.errorText {
+    color: red;
+    width: 70%;
+    margin: auto;
+}
